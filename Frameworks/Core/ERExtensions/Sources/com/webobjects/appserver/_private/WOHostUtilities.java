@@ -1,6 +1,9 @@
 package com.webobjects.appserver._private;
 
 import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.util.Enumeration;
 
 import org.apache.log4j.Logger;
 
@@ -33,6 +36,9 @@ import er.extensions.foundation.ERXProperties;
  * not deny management requests from wotaskd instances that are running on any of the list of supplemental ip addresses
  * that you provide</p>
  * 
+ * <p>Alternatively you can set <code>er.extensions.WOHostUtilities.autoaddlocalhostips=true</code>
+ * to automatically add all addresses, that are not link-local.</p>
+ *
  * @author Miguel Arroz (survs.com)
  *
  */
@@ -70,6 +76,13 @@ public class WOHostUtilities
 		} catch (Exception localException3) {
 			NSLog.err.appendln("<WOHostUtilities>: Couldn't get InetAddress for '127.0.0.1': " + localException3);
 		}
+		try
+		{
+			InetAddress[] arrayOfInetAddress2 = InetAddress.getAllByName("[::1]");
+			_addInetAddressArray(arrayOfInetAddress2, localNSMutableArray);
+		} catch (Exception localException3) {
+			NSLog.err.appendln("<WOHostUtilities>: Couldn't get InetAddress for '[::1]': " + localException3);
+		}
 		
 		NSArray<String> ips = ERXProperties.arrayForKey( LOCALHOST_IPS_PROPERTY_KEY );
 		
@@ -82,6 +95,22 @@ public class WOHostUtilities
 				} catch (Exception e) {
 					log.error( "Could not add localhost IP " + ip );
 				}
+			}
+		}
+
+		if (ERXProperties.booleanForKeyWithDefault("er.extensions.WOHostUtilities.autoaddlocalhostips", false)) {
+			try {
+				for (Enumeration<NetworkInterface> ifaces = NetworkInterface.getNetworkInterfaces(); ifaces.hasMoreElements();) {
+					for (Enumeration<InetAddress> addresses = ifaces.nextElement().getInetAddresses(); addresses.hasMoreElements();) {
+						InetAddress addr = addresses.nextElement();
+						if(addr.isLinkLocalAddress())
+							continue;
+						_addInetAddress(addr, localNSMutableArray);
+					}
+				}
+			}
+			catch (SocketException e1) {
+				log.error("Could not get interface list");
 			}
 		}
 
