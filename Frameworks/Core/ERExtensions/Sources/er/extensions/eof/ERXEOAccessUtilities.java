@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -61,6 +62,8 @@ import com.webobjects.foundation._NSDelegate;
 import com.webobjects.jdbcadaptor.JDBCPlugIn;
 
 import er.extensions.appserver.ERXSession;
+import er.extensions.eof.listener.ERXEOExecutionListenerDumbImpl;
+import er.extensions.eof.listener.IERXEOExecutionListener;
 import er.extensions.foundation.ERXArrayUtilities;
 import er.extensions.foundation.ERXDictionaryUtilities;
 import er.extensions.foundation.ERXProperties;
@@ -83,6 +86,12 @@ public class ERXEOAccessUtilities {
     
     /** SQL logger */
     private static Logger sqlLoggingLogger = null;
+
+    private static final AtomicReference<IERXEOExecutionListener> listener = new AtomicReference<IERXEOExecutionListener>(new ERXEOExecutionListenerDumbImpl());
+
+    public static void setListener(IERXEOExecutionListener aListener) {
+        listener.set(aListener);
+    }
 
     /**
      * Finds an entity that is contained in a string. This is used a lot in
@@ -600,6 +609,34 @@ public class ERXEOAccessUtilities {
      * @return aggregate function attribute
      */
     public static EOAttribute createAggregateAttribute(EOEditingContext ec, String function, String attributeName, String entityName, Class valueClass, String valueType, String aggregateName, String entityTableAlias) {
+        return createAggregateAttribute(ec, function, attributeName, entityName, valueClass, valueType, aggregateName, entityTableAlias, false);
+    }
+    
+    /**
+     * Creates an aggregate attribute for a given function name. These can then
+     * be used to query on when using raw rows.
+     * 
+     * @param ec
+     *            editing context used to locate the model group
+     * @param function
+     *            name of the function MAX, MIN, etc
+     * @param attributeName
+     *            name of the attribute
+     * @param entityName
+     *            name of the entity
+     * @param aggregateName
+     *            the name to assign to the aggregate column in the query
+     * @param valueClass
+     *            the java class of this attribute's values
+     * @param valueType
+     *            the EOAttribute value type
+     * @param entityTableAlias
+     *            the "t0"-style name of the attribute in this query (or null for "t0")
+	 * @param usesDistinct
+	 *            <code>true</code> if function should be used on distinct values
+     * @return aggregate function attribute
+     */
+    public static EOAttribute createAggregateAttribute(EOEditingContext ec, String function, String attributeName, String entityName, Class valueClass, String valueType, String aggregateName, String entityTableAlias, boolean usesDistinct) {
         if (function == null) {
         	throw new IllegalStateException("Function is null.");
         }
@@ -624,25 +661,23 @@ public class ERXEOAccessUtilities {
         if (aggregateName != null) {
         	aggregate.setName(aggregateName);
         	aggregate.setColumnName(aggregateName);
-        }
-        else {
+        } else {
 	        aggregate.setName("p_object" + function + "Attribute");
 	        aggregate.setColumnName("p_object" + function + "Attribute");
         }
         aggregate.setClassName(valueClass.getName());
         if (valueType != null) {
         	aggregate.setValueType(valueType);
-        }
-        else {
+        } else {
         	aggregate.setValueType(attribute.valueType());
         }
         
-        // MS: This "t0." is totally wrong, but it is required.  It should be dynamically
+        // MS: This "t0." is totally wrong, but it is required. It should be dynamically
         // generated, but this function doesn't have an EOSQLExpression to operate on
         if (entityTableAlias == null) {
         	entityTableAlias = "t0";
         }
-        aggregate.setReadFormat(ERXSQLHelper.newSQLHelper(entity.model()).readFormatForAggregateFunction(function, entityTableAlias + "." + attribute.columnName(), aggregateName));
+        aggregate.setReadFormat(ERXSQLHelper.newSQLHelper(entity.model()).readFormatForAggregateFunction(function, entityTableAlias + "." + attribute.columnName(), aggregateName, usesDistinct));
         return aggregate;
     }
 
@@ -849,6 +884,29 @@ public class ERXEOAccessUtilities {
         }
         return wasHandled;
     }
+
+  /**
+   * <span class="ja">
+   * 例外エラーが重複エラーの場合は true を戻します。
+   * 
+   * @param e - saveChanges() から受けた例外エラーそのまま
+   * 
+   * @return エラーが処理できた場合は true
+   * </span>
+   */
+  public static boolean isUniqueFailure(EOGeneralAdaptorException e) {
+    boolean wasHandled = false;
+    NSDictionary userInfo = e.userInfo();
+    if(userInfo != null) {
+      EOAdaptorOperation adaptorOp = (EOAdaptorOperation) userInfo.objectForKey(EOAdaptorChannel.FailedAdaptorOperationKey);
+
+      wasHandled = adaptorOp.toString().contains("UNIQUE");
+      if (!wasHandled) {
+        log.error("UNIQUE Integrity constraint violation  " + e + ": " + userInfo);
+      }
+    }
+    return wasHandled;
+  }
 
     /**
      * Given an array of EOs, returns snapshot dictionaries for the given
@@ -1211,6 +1269,7 @@ public class ERXEOAccessUtilities {
                	statement = statement.replaceAll("((t0|T0)\\.[a-zA-Z0-9_]+\\,\\s*)*(t0|T0)\\.[a-zA-Z0-9_\\.]+\\s+FROM\\s+", "t0.* FROM ");
             	ERXStats.addDurationForKey(millisecondsNeeded, Group.SQL, entityName + ": " +statement);
             }
+            listener.get().log(millisecondsNeeded, entityName);
             if (needsLog) {
                 String logString = createLogString(channel, expression, millisecondsNeeded);
         		if (logString.length() > maxLength) {
