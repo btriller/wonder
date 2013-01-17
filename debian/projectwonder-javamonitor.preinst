@@ -1,0 +1,28 @@
+#!/bin/sh -e
+
+# preinst script for projectwonder-javamonitor
+
+case "$1" in
+	install|upgrade)
+		if [ -x "/etc/init.d/javamonitor" ]; then
+			if [ -x /usr/sbin/invoke-rc.d ]; then
+				invoke-rc.d javamonitor stop || true
+			else
+				/etc/init.d/javamonitor stop || true
+			fi
+		fi
+
+	;;
+
+	abort-upgrade)
+	;;
+
+	*)
+		echo "preinst called with unknown argument \`$1'" >&2
+		exit 1
+	;;
+esac
+
+#DEBHELPER#
+
+exit 0

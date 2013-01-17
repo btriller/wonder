@@ -1,0 +1,12 @@
+usr/share/webobjects/Library/Frameworks/JavaEOAccess.framework var/lib/webobjects/Library/WebObjects/Applications/wotaskd.woa/Contents/Frameworks/JavaEOAccess.framework
+usr/share/webobjects/Library/Frameworks/JavaEOControl.framework var/lib/webobjects/Library/WebObjects/Applications/wotaskd.woa/Contents/Frameworks/JavaEOControl.framework
+usr/share/webobjects/Library/Frameworks/JavaFoundation.framework var/lib/webobjects/Library/WebObjects/Applications/wotaskd.woa/Contents/Frameworks/JavaFoundation.framework
+usr/share/webobjects/Library/Frameworks/JavaJDBCAdaptor.framework var/lib/webobjects/Library/WebObjects/Applications/wotaskd.woa/Contents/Frameworks/JavaJDBCAdaptor.framework
+usr/share/webobjects/Library/Frameworks/JavaWOJSPServlet.framework var/lib/webobjects/Library/WebObjects/Applications/wotaskd.woa/Contents/Frameworks/JavaWOJSPServlet.framework
+usr/share/webobjects/Library/Frameworks/JavaWebObjects.framework var/lib/webobjects/Library/WebObjects/Applications/wotaskd.woa/Contents/Frameworks/JavaWebObjects.framework
+usr/share/webobjects/Library/Frameworks/JavaXML.framework var/lib/webobjects/Library/WebObjects/Applications/wotaskd.woa/Contents/Frameworks/JavaXML.framework
+usr/share/projectwonder/ERExtensions.framework var/lib/webobjects/Library/WebObjects/Applications/wotaskd.woa/Contents/Frameworks/ERExtensions.framework
+usr/share/projectwonder/JavaMonitorFramework.framework var/lib/webobjects/Library/WebObjects/Applications/wotaskd.woa/Contents/Frameworks/JavaMonitorFramework.framework
+usr/share/projectwonder/ERRest.framework var/lib/webobjects/Library/WebObjects/Applications/wotaskd.woa/Contents/Frameworks/ERRest.framework
+usr/share/projectwonder/ERJars.framework var/lib/webobjects/Library/WebObjects/Applications/wotaskd.woa/Contents/Frameworks/ERJars.framework
+usr/share/projectwonder/JavaWOExtensions.framework var/lib/webobjects/Library/WebObjects/Applications/wotaskd.woa/Contents/Frameworks/JavaWOExtensions.framework

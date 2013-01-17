@@ -1,0 +1,22 @@
+#!/bin/sh -e
+
+[ -x /etc/init.d/javamonitor ] && invoke-rc.d javamonitor stop
+
+case "$1" in
+    remove|deconfigure)
+	update-alternatives --remove javamonitor \
+		/var/lib/webobjects/Library/WebObjects/Applications/JavaMonitor.woa/JavaMonitor
+    ;;
+
+    failed-upgrade|upgrade)
+    ;;
+
+    *)
+        echo "prerm called with unknown argument \`$1'" >&2
+        exit 1
+    ;;
+esac
+
+[ -x /etc/init.d/javamonitor ] && invoke-rc.d javamonitor start
+
+exit 0

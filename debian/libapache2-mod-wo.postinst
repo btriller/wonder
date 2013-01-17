@@ -1,0 +1,27 @@
+#!/bin/sh -e
+# postinst script for libapache2-mod-wo
+
+case "$1" in
+    configure)
+    	a2enmod webobjects
+	if [ -x /etc/init.d/apache2 ] ; then
+		if [ -x /usr/sbin/invoke-rc.d ] ; then
+			invoke-rc.d apache2 reload
+		else
+			/etc/init.d/apache2 reload
+		fi
+    	fi
+    ;;
+
+    abort-upgrade|abort-remove|abort-deconfigure)
+    ;;
+
+    *)
+        echo "postinst called with unknown argument \`$1'" >&2
+        exit 1
+    ;;
+esac
+
+#DEBHELPER#
+
+exit 0

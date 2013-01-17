@@ -1,0 +1,23 @@
+#!/bin/sh -e
+
+case "$1" in
+    configure)
+	update-alternatives --quiet --install \
+		/usr/share/webobjects/bin/wotaskd wotaskd \
+		/var/lib/webobjects/Library/WebObjects/Applications/wotaskd.woa/wotaskd 25
+	update-rc.d wotaskd defaults 92 08 >/dev/null
+	invoke-rc.d wotaskd start || true
+    ;;
+
+    abort-upgrade|abort-remove|abort-deconfigure)
+    ;;
+
+    *)
+        echo "postinst called with unknown argument \`$1'" >&2
+        exit 1
+    ;;
+esac
+
+
+
+exit 0

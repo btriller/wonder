@@ -1,0 +1,62 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+# This has to be exported to make some magic below work.
+export DH_OPTIONS
+
+ADAPTOR_SRC_DIR := Utilities/Adaptors
+ADAPTORS := Apache2.2
+APXS := $(shell which apxs2)
+OS := Debian
+ENABLE_SSL_SUPPORT=
+LIBEXECDIR := $(shell apxs2 -q LIBEXECDIR)
+NEXT_ROOT := /usr/share/webobjects
+ROOTS := debian/roots
+DESTDIR := debian/tmp
+APP_TARGETS := wotaskd.all JavaMonitor.all
+FW_TARGETS := JavaWOExtensions.all ERJars.all ERExtensions.all ERRest.all JavaMonitorFramework.all Ajax.all
+
+# determine debian/upstream version and filenames
+DEBVERSION:=$(shell dpkg-parsechangelog | sed -n -e 's/Version: //p')
+DEB_NOEPOCH_VERSION:=$(shell echo $(DEBVERSION) | cut -d':' -f 2)
+DEB_SRC_VERSION:=$(shell echo $(DEB_NOEPOCH_VERSION) | sed -e 's/-[^-]\+$$//')
+UPVERSION:=$(shell echo $(DEB_SRC_VERSION) | sed -e 's/[.~]uloca//' -e 's/~\(\(rc\|beta\)[0-9]\)/-\1/')
+
+ANT_ARGS = -Dwo.external.root=$(ROOTS) \
+	-Dwo.external.frameworks=$(ROOTS) \
+	-Dwo.bootstrapjar=$(NEXT_ROOT)/Library/WebObjects/JavaApplications/wotaskd.woa/WOBootstrap.jar \
+	-Dwo.system.root=$(NEXT_ROOT) \
+	-Dwo.system.frameworks=$(NEXT_ROOT)/Library/Frameworks \
+	-Dwo.local.root=$(NEXT_ROOT)/Local \
+	-Dwo.local.frameworks=$(NEXT_ROOT)/Local/Library/Frameworks \
+	-Dwo.server.root=$(NEXT_ROOT)/Local/htdocs \
+	-Dproject.version=$(DEB_SRC_VERSION) \
+	-Ddeployment.standalone=true
+
+%:
+	dh $@
+
+override_dh_auto_clean:
+	dh_auto_clean -D$(ADAPTOR_SRC_DIR) -- ADAPTORS=$(ADAPTORS) APXS=$(APXS) OS=$(OS) ENABLE_SSL_SUPPORT=$(ENABLE_SSL_SUPPORT)
+	dh_auto_clean -- $(ANT_ARGS) clean
+	rm -rf $(ROOTS)
+
+override_dh_auto_build:
+	dh_auto_build -D$(ADAPTOR_SRC_DIR) -- ADAPTORS=$(ADAPTORS) APXS=$(APXS) OS=$(OS) ENABLE_SSL_SUPPORT=$(ENABLE_SSL_SUPPORT)
+	dh_auto_build -- $(ANT_ARGS) -f Build/build/build.xml -Dbuild.action=build -Dwonder.patch=54 $(FW_TARGETS)
+	dh_auto_build -- $(ANT_ARGS) -f Build/build/build.xml -Dbuild.action=build -Dwonder.development=false $(APP_TARGETS)
+
+override_dh_auto_install:
+	ant -f Build/build/build.xml -Dbuild.action=install \
+		-Dwonder.application.install.root=$(DESTDIR) \
+		-Dwonder.framework.install.root=$(DESTDIR) \
+		-Dwonder.jar.install.root=$(DESTDIR) \
+		$(ANT_ARGS) $(FW_TARGETS) $(APP_TARGETS)
+	rm -r $(DESTDIR)/JavaMonitor.woa/Contents/Frameworks \
+		$(DESTDIR)/wotaskd.woa/Contents/Frameworks
+	chmod 755 $(DESTDIR)/JavaMonitor.woa/JavaMonitor $(DESTDIR)/wotaskd.woa/wotaskd \
+		$(DESTDIR)/wotaskd.woa/Contents/Resources/javawoservice.sh \
+		$(DESTDIR)/wotaskd.woa/Contents/Resources/SpawnOfWotaskd.sh

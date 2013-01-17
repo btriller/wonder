@@ -1,0 +1,25 @@
+#!/bin/sh -e
+
+case "$1" in
+    configure)
+	update-alternatives --quiet --install \
+		/usr/share/webobjects/bin/javamonitor javamonitor \
+		/var/lib/webobjects/Library/WebObjects/Applications/JavaMonitor.woa/JavaMonitor 25 \
+		--slave /var/lib/webobjects/htdocs/WebObjects/JavaMonitor.woa JavaMonitor.woa \
+			/var/lib/webobjects/Library/WebObjects/Applications/JavaMonitor.woa
+	update-rc.d javamonitor defaults 93 07 >/dev/null
+	invoke-rc.d javamonitor start || true
+    ;;
+
+    abort-upgrade|abort-remove|abort-deconfigure)
+    ;;
+
+    *)
+        echo "postinst called with unknown argument \`$1'" >&2
+        exit 1
+    ;;
+esac
+
+
+
+exit 0

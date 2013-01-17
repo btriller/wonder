@@ -1,0 +1,22 @@
+#!/bin/sh -e
+
+[ -x /etc/init.d/wotaskd ] && invoke-rc.d wotaskd stop
+
+case "$1" in
+    remove|deconfigure)
+	update-alternatives --remove wotaskd \
+		/var/lib/webobjects/Library/WebObjects/Applications/wotaskd.woa/wotaskd
+    ;;
+
+    failed-upgrade|upgrade)
+    ;;
+
+    *)
+        echo "prerm called with unknown argument \`$1'" >&2
+        exit 1
+    ;;
+esac
+
+[ -x /etc/init.d/wotaskd ] && invoke-rc.d wotaskd start
+
+exit 0
