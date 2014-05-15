@@ -8,6 +8,7 @@ import com.amazon.s3.AWSAuthConnection;
 import com.amazon.s3.QueryStringAuthGenerator;
 import com.webobjects.eocontrol.EOEditingContext;
 
+import er.attachment.upload.ERRemoteAttachment;
 import er.extensions.eof.ERXGenericRecord;
 import er.extensions.foundation.ERXProperties;
 
@@ -24,7 +25,7 @@ import er.extensions.foundation.ERXProperties;
  * 
  * @author mschrag
  */
-public class ERS3Attachment extends _ERS3Attachment {
+public class ERS3Attachment extends _ERS3Attachment implements ERRemoteAttachment {
 	/**
 	 * Do I need to update serialVersionUID?
 	 * See section 5.6 <cite>Type Changes Affecting Serialization</cite> on page 51 of the 
@@ -33,13 +34,11 @@ public class ERS3Attachment extends _ERS3Attachment {
 	private static final long serialVersionUID = 1L;
 
 	public static final String STORAGE_TYPE = "s3";
+	@SuppressWarnings("unused")
 	private static Logger log = Logger.getLogger(ERS3Attachment.class);
 
 	private File _pendingUploadFile;
 	private boolean _pendingDelete;
-	
-	public ERS3Attachment() {
-	}
 
 	public void _setPendingUploadFile(File pendingUploadFile, boolean pendingDelete) {
 		_pendingUploadFile = pendingUploadFile;
@@ -185,11 +184,24 @@ public class ERS3Attachment extends _ERS3Attachment {
 	}
 
 	public QueryStringAuthGenerator queryStringAuthGenerator() {
-		return new QueryStringAuthGenerator(accessKeyID(), secretAccessKey(), false);
+		String host = ERXProperties.stringForKey("er.attachment." + configurationName() + ".s3.host");
+		if (host == null) {
+			host = ERXProperties.stringForKey("er.attachment.s3.host");
+		}
+		if (host == null)
+			return new QueryStringAuthGenerator(accessKeyID(), secretAccessKey(), false);
+		else
+			return new QueryStringAuthGenerator(accessKeyID(), secretAccessKey(), false, host);
 	}
 
 	public AWSAuthConnection awsConnection() {
-		AWSAuthConnection conn = new AWSAuthConnection(accessKeyID(), secretAccessKey(), true);
-		return conn;
+		String host = ERXProperties.stringForKey("er.attachment." + configurationName() + ".s3.host");
+		if (host == null) {
+			host = ERXProperties.stringForKey("er.attachment.s3.host");
+		}
+		if (host == null)
+			return new AWSAuthConnection(accessKeyID(), secretAccessKey(), true);
+		else
+			return new AWSAuthConnection(accessKeyID(), secretAccessKey(), true, host);
 	}
 }

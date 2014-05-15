@@ -15,7 +15,6 @@ import com.webobjects.foundation.NSArray;
 import com.webobjects.foundation.NSForwardException;
 import com.webobjects.foundation.NSMutableArray;
 
-import er.extensions.foundation.ERXFileUtilities;
 import er.extensions.localization.ERXLocalizer;
 
 /**
@@ -54,6 +53,7 @@ public class ERXExceptionUtilities {
 			super(cause);
 		}
 
+		@Override
 		public void printStackTrace(PrintWriter s) {
 			s.println("[stack trace already printed]");
 		}
@@ -114,7 +114,7 @@ public class ERXExceptionUtilities {
 		Throwable throwable = t;
 		while (throwable != null) {
 			if (messageBuffer.length() > 0) {
-				messageBuffer.append(" ");
+				messageBuffer.append(' ');
 			}
 			Throwable oldThrowable = ERXExceptionUtilities.getMeaningfulThrowable(throwable);
 			String message = throwable.getLocalizedMessage();
@@ -133,7 +133,7 @@ public class ERXExceptionUtilities {
 			message = message.trim();
 			messageBuffer.append(message);
 			if (!message.endsWith(".")) {
-				messageBuffer.append(".");
+				messageBuffer.append('.');
 			}
 			throwable = ERXExceptionUtilities.getCause(oldThrowable);
 		}

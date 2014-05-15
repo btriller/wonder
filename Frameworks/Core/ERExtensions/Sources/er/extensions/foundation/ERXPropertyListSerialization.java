@@ -851,7 +851,7 @@ public class ERXPropertyListSerialization {
 							break;
 						case DATA:
 							try {
-								StringBuffer stringbuffer = new StringBuffer(_curChars.length());
+								StringBuilder stringbuffer = new StringBuilder(_curChars.length());
 								for (int i = 0; i < _curChars.length(); i++)
 									if (!Character.isWhitespace(_curChars.charAt(i)))
 										stringbuffer.append(_curChars.charAt(i));
@@ -3318,7 +3318,7 @@ public class ERXPropertyListSerialization {
 					} else {
 						buf.append(_objectTable.get(_keyref[i]));
 					}
-					buf.append(":");
+					buf.append(':');
 					if (_objref[i] < 0 || _objref[i] >= _objectTable.size()) {
 						buf.append("#" + _objref[i]);
 					} else if (_objectTable.get(_objref[i]) == this) {
@@ -5832,13 +5832,13 @@ public class ERXPropertyListSerialization {
 			case NSPropertyListBinaryFormat_v1_0:
 				_BinaryPListParser parser = new _BinaryPListParser();
 				if (plist instanceof Map<?, ?>) {
-					parser.writePropertyListToStream((Map<?, ?>)plist, out);
+					parser.writePropertyListToStream(plist, out);
 				} else if (plist instanceof NSDictionary) {
-	                parser.writePropertyListToStream((NSDictionary)plist, out);
+	                parser.writePropertyListToStream(plist, out);
 				} else if (plist instanceof List<?>) {
-					parser.writePropertyListToStream((List<?>) plist, out);
+					parser.writePropertyListToStream(plist, out);
                 } else if (plist instanceof NSArray) {
-                    parser.writePropertyListToStream((NSArray)plist, out);
+                    parser.writePropertyListToStream(plist, out);
 				}
 				break;
 

@@ -60,8 +60,8 @@ public class QueryStringAuthGenerator {
         this.server = server;
         this.port = port;
 
-        this.expiresIn = DEFAULT_EXPIRES_IN;
-        this.expires = null;
+        expiresIn = DEFAULT_EXPIRES_IN;
+        expires = null;
     }
 
     public void setExpires(long millisSinceEpoch) {
@@ -140,16 +140,16 @@ public class QueryStringAuthGenerator {
         } else {
             buffer.append("http://");
         }
-        buffer.append(server).append(":").append(port).append("/").append(bucket);
-        buffer.append("/").append(Utils.urlencode(key));
+        buffer.append(server).append(':').append(port).append('/').append(bucket);
+        buffer.append('/').append(Utils.urlencode(key));
 
         return buffer.toString();
     }
 
     private String generateURL(String method, String path, Map headers) {
         long expires = 0L;
-        if (this.expiresIn != null) {
-            expires = System.currentTimeMillis() + this.expiresIn.longValue();
+        if (expiresIn != null) {
+            expires = System.currentTimeMillis() + expiresIn.longValue();
         } else if (this.expires != null) {
             expires = this.expires.longValue();
         } else {
@@ -169,14 +169,14 @@ public class QueryStringAuthGenerator {
             buffer.append("http://");
         }
 
-        buffer.append(server).append(":").append(port).append("/").append(path);
+        buffer.append(server).append(':').append(port).append('/').append(path);
 
         if (path.indexOf('?') == -1) {
             // no other query parameters
-            buffer.append("?");
+            buffer.append('?');
         } else {
             // there exist other query parameters
-            buffer.append("&");
+            buffer.append('&');
         }
 
         buffer.append("Signature=").append(encodedCanonical);

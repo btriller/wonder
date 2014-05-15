@@ -80,7 +80,7 @@ public class ERDZoomableImage extends ERXStatelessComponent {
     }
     
     /**
-     * @return {@link Boolean} true, if {@link ERDZoomableImage#thumnailSrc()} returns an empty or null string
+     * @return {@link Boolean} true, if {@link #thumnailSrc()} returns an empty or null string
      *                         false, otherwise
      */
     public boolean isThumbnailSrcNullOrEmpty() {
@@ -107,7 +107,7 @@ public class ERDZoomableImage extends ERXStatelessComponent {
     }
 
     public String jsToZoomImage() {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         if(enableZoom()) {
             sb.append ("ZoomableImage.openImageFromURL('");
             sb.append(imageSrc()); 

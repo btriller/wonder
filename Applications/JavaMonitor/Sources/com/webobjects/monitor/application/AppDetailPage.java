@@ -559,7 +559,7 @@ public class AppDetailPage extends MonitorComponent {
     private WOComponent newDetailPage() {
         AppDetailPage nextPage = AppDetailPage.create(context(), myApplication());
         nextPage.displayGroup.setSelectedObjects(displayGroup.selectedObjects());
-        nextPage.showDetailStatistics = this.showDetailStatistics;
+        nextPage.showDetailStatistics = showDetailStatistics;
         if (currentBouncer() != null &&
         		!"Finished".equals(currentBouncer().status()) && 
         		!currentBouncer().errors().isEmpty()) {
@@ -693,10 +693,20 @@ public class AppDetailPage extends MonitorComponent {
         return StatsUtilities.totalTransactionsForApplication(myApplication());
     }
 
+    public Integer totalTransactionsForActiveInstances(){
+    	return StatsUtilities.totalTransactionsForActiveInstancesOfApplication(myApplication());
+    }
+    
+    
     public Integer totalActiveSessions() {
         return StatsUtilities.totalActiveSessionsForApplication(myApplication());
     }
 
+    public Integer totalActiveSessionsForActiveInstances(){
+    	return StatsUtilities.totalActiveSessionsForActiveInstancesOfApplication(myApplication());
+    }
+ 
+    
     public Float totalAverageTransaction() {
         return StatsUtilities.totalAverageTransactionForApplication(myApplication());
     }

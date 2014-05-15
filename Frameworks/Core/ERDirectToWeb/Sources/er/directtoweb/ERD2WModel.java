@@ -169,6 +169,7 @@ public class ERD2WModel extends D2WModel {
     	return new NSArray(dynamicPages().toArray());
     }
 
+    @Override
     protected void sortRules() {
         // This allows other non-d2wmodel file based rules to be loaded.
         // but we only post for the main model
@@ -216,22 +217,28 @@ public class ERD2WModel extends D2WModel {
       clearD2WRuleCache();
     }
 
+    @Override
     public NSArray rules() {
         return super.rules();
     }
 
+    @Override
     public void addRule(Rule rule) {
         super.addRule(rule);
     }
 
+    @Override
     public void removeRule(Rule rule) {
         super.removeRule(rule);
     }
 
     protected String descriptionForRuleSet(NSArray set) {
-        StringBuffer buffer = new StringBuffer();
-        for (Enumeration e = set.objectEnumerator(); e.hasMoreElements();)
-            buffer.append("\t" + descriptionForRule((Rule)e.nextElement()) + "\n");
+        StringBuilder buffer = new StringBuilder();
+        for (Enumeration e = set.objectEnumerator(); e.hasMoreElements();) {
+            buffer.append('\t');
+            buffer.append(descriptionForRule((Rule)e.nextElement()));
+            buffer.append('\n');
+        }
         return buffer.toString();
     }
 
@@ -245,6 +252,7 @@ public class ERD2WModel extends D2WModel {
     }
 
     protected Hashtable _filePathRuleTraceCache;
+    @Override
     public void addRules(NSArray rules) {
         super.addRules(rules);
         if (!WOApplication.application().isCachingEnabled() && currentFile() != null) {
@@ -262,10 +270,12 @@ public class ERD2WModel extends D2WModel {
         }
     }
 
+    @Override
     protected Object fireSystemRuleForKeyPathInContext(String keyPath, D2WContext context) {
         return fireRuleForKeyPathInContext(_systemCache, keyPath,context);
     }
 
+    @Override
     protected Object fireRuleForKeyPathInContext(String keyPath, D2WContext context) {
         return fireRuleForKeyPathInContext(_cache, keyPath, context);
     }
@@ -382,11 +392,13 @@ public class ERD2WModel extends D2WModel {
 
     static class _LhsKeysCallback extends ERDQualifierTraversalCallback {
         public NSMutableArray keys=new NSMutableArray();
+        @Override
         public boolean traverseKeyValueQualifier (EOKeyValueQualifier q) {
             if (!keys.containsObject(q.key()))
                 keys.addObject(q.key());
             return true;
         }
+        @Override
         public boolean traverseKeyComparisonQualifier (EOKeyComparisonQualifier q) {
             if (!keys.containsObject(q.leftKey()))
                 keys.addObject(q.leftKey());
@@ -536,6 +548,7 @@ public class ERD2WModel extends D2WModel {
         }
     }
 
+    @Override
     protected void invalidateCaches() {
       if(log.isDebugEnabled())
         log.debug("Invalidating cache");
@@ -607,6 +620,7 @@ public class ERD2WModel extends D2WModel {
         return model;
     }
 
+    @Override
     protected void mergePathURL(URL modelURL) {
         if(modelURL != null) {
 
@@ -643,6 +657,7 @@ public class ERD2WModel extends D2WModel {
         setCurrentFile(null);
     }
 
+    @Override
     protected void mergeFile(File modelFile) {
         mergePathURL(ERXFileUtilities.URLFromFile(modelFile));
     }
@@ -722,7 +737,7 @@ public class ERD2WModel extends D2WModel {
                     try {
                         EOQualifier cache = qualifierInCache((EOQualifier)q);
                         if (cache != null && cache != q) {
-                            r.setLhs((EOQualifier)cache);
+                            r.setLhs(cache);
                             //r.setLhs((EOQualifierEvaluation)cache);
                             replacedQualifiers++;
                             //uniquedQualifiers++;
@@ -849,7 +864,7 @@ public class ERD2WModel extends D2WModel {
         if (cachedQualifier == null) {
             NSMutableArray qualifiers = null;
             for (int c = 0; c < q.qualifiers().count(); c++) {
-                EOQualifier q1 = (EOQualifier)q.qualifiers().objectAtIndex(c);
+                EOQualifier q1 = q.qualifiers().objectAtIndex(c);
                 EOQualifier cache = qualifierInCache(q1);
                 if (cache != null) {
                     if (qualifiers == null) {
@@ -889,7 +904,7 @@ public class ERD2WModel extends D2WModel {
         if (cachedQualifier == null) {
             NSMutableArray qualifiers = null;
             for (int c = 0; c < q.qualifiers().count(); c++) {
-                EOQualifier q1 = (EOQualifier)q.qualifiers().objectAtIndex(c);
+                EOQualifier q1 = q.qualifiers().objectAtIndex(c);
                 EOQualifier cache = qualifierInCache(q1);
                 if (cache != null) {
                     if (qualifiers == null) {

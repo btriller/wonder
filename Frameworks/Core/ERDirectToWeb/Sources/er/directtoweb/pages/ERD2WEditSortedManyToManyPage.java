@@ -83,7 +83,7 @@ public class ERD2WEditSortedManyToManyPage extends ERD2WPage implements EditRela
 
     public void setMasterObjectAndRelationshipKey(EOEnterpriseObject eo, String relationshipKey) {
     	EOEditingContext ec = ERXEC.newEditingContext(eo.editingContext(), false);  // a non-validating context
-        EOEnterpriseObject newObject=(EOEnterpriseObject)EOUtilities.localInstanceOfObject(ec,eo);
+        EOEnterpriseObject newObject=EOUtilities.localInstanceOfObject(ec,eo);
         setObject(newObject);
         _relationshipKey = relationshipKey;
 
@@ -492,9 +492,10 @@ public class ERD2WEditSortedManyToManyPage extends ERD2WPage implements EditRela
         return result;
     }
 
+    @Override
     public void appendToResponse(WOResponse r, WOContext c){
         if(((ERXSession)session()).javaScriptEnabled()){
-            StringBuffer result = new StringBuffer();
+            StringBuilder result = new StringBuilder();
             for(Enumeration e = relationshipDisplayGroup.displayedObjects().objectEnumerator();
                 e.hasMoreElements();){
                 result.append(e.nextElement().hashCode()+",");

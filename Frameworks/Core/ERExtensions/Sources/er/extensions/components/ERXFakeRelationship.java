@@ -74,9 +74,7 @@ public class ERXFakeRelationship extends WOComponent {
         super(context);
     }
 
-    public boolean isStateless() {
-        return false;
-    }
+    @Override
     public boolean synchronizesVariablesWithBindings() {
         return false;
     }
@@ -120,7 +118,7 @@ public class ERXFakeRelationship extends WOComponent {
 
     public static void setFakeRelationshipForKey(EOEnterpriseObject sourceObject, NSArray objects, String relationshipKey, String destinationEntityName, String delimiter) {
 	if(objects.count() > 0) {
-	    StringBuffer newValue = new StringBuffer();
+	    StringBuilder newValue = new StringBuilder();
 	    Enumeration e = objects.objectEnumerator();
 
 	    while(e.hasMoreElements()) {
@@ -292,6 +290,7 @@ public class ERXFakeRelationship extends WOComponent {
 	uiStyle = null;
     }
 
+    @Override
     public void reset() {
         _invalidateCaches();
     }

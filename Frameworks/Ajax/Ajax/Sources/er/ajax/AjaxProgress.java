@@ -33,8 +33,13 @@ public class AjaxProgress {
 	 * 
 	 * @param maximum the maximum value of this progress
 	 */
-	public AjaxProgress(int maximum) {
+	public AjaxProgress(long maximum) {
 		this("AjaxProgress" + System.currentTimeMillis(), maximum);
+	}
+
+	@Deprecated
+	public AjaxProgress(int maximum) {
+		this((long) maximum);
 	}
 
 	/**
@@ -43,9 +48,14 @@ public class AjaxProgress {
 	 * @param id the id of this AjaxProgress (only useful if you're registering it with AjaxProgressBar's registry)
 	 * @param maximum the maximum value of this progress
 	 */
-	public AjaxProgress(String id, int maximum) {
+	public AjaxProgress(String id, long maximum) {
 		_id = id;
 		_maximum = maximum;
+	}
+
+	@Deprecated
+	public AjaxProgress(String id, int maximum) {
+		this(id, (long) maximum);
 	}
 
 	/**
@@ -133,7 +143,7 @@ public class AjaxProgress {
 	 * @return whether or not this procedure has started
 	 */
 	public boolean isStarted() {
-		return _value > 0;
+		return _value > 0 || isDone();
 	}
 
 	/**

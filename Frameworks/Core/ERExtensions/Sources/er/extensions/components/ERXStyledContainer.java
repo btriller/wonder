@@ -55,10 +55,11 @@ public class ERXStyledContainer extends WOGenericContainer {
 		}
 	}
 
+	@Override
 	 public void appendAttributesToResponse(WOResponse woresponse, WOContext wocontext) {
 		 super.appendAttributesToResponse(woresponse, wocontext);
 		 WOComponent component = wocontext.component();
-		 StringBuffer style = new StringBuffer();
+		 StringBuilder style = new StringBuilder();
 		 if(_style != null) {
 			 String s = (String) _style.valueInComponent(component);
 			 if(s != null) {

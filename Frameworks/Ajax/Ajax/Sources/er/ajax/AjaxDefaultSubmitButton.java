@@ -4,7 +4,6 @@ import com.webobjects.appserver.WOComponent;
 import com.webobjects.appserver.WOContext;
 import com.webobjects.appserver.WOElement;
 import com.webobjects.appserver.WOResponse;
-
 import com.webobjects.foundation.NSDictionary;
 import com.webobjects.foundation.NSMutableDictionary;
 
@@ -62,6 +61,7 @@ public class AjaxDefaultSubmitButton extends AjaxSubmitButton
         super(name, associations, children);
     }
 
+    @Override
     public void appendToResponse(WOResponse response, WOContext context) {
         WOComponent component = context.component();
 
@@ -129,10 +129,10 @@ public class AjaxDefaultSubmitButton extends AjaxSubmitButton
         AjaxUpdateLink.addEffect(options, (String) valueForBinding("afterEffect", component), afterEffectID, (String) valueForBinding("afterEffectDuration", component));
 
         AjaxOptions.appendToBuffer(options, onClickBuffer, context);
-        onClickBuffer.append(")");
+        onClickBuffer.append(')');
         String onClick = (String) valueForBinding("onClick", component);
         if (onClick != null) {
-          onClickBuffer.append(";");
+          onClickBuffer.append(';');
           onClickBuffer.append(onClick);
         }
 
@@ -141,7 +141,7 @@ public class AjaxDefaultSubmitButton extends AjaxSubmitButton
         }
 
         if (onClickBefore != null) {
-            onClickBuffer.append("}");
+            onClickBuffer.append('}');
         }
         onClickBuffer.append("; return false;");
         

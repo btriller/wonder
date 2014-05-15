@@ -9,6 +9,7 @@ public class ERCMailMessageArchive extends _ERCMailMessageArchive {
 	 */
 	private static final long serialVersionUID = 1L;
 
+    @SuppressWarnings("unused")
     private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(ERCMailMessageArchive.class);
 
     public static final ERCMailMessageArchiveClazz clazz = new ERCMailMessageArchiveClazz();
@@ -22,6 +23,7 @@ public class ERCMailMessageArchive extends _ERCMailMessageArchive {
      * Intitializes the EO. This is called when an EO is created, not when it is 
      * inserted into an EC.
      */
+    @Override
     public void init(EOEditingContext ec) {
         super.init(ec);
     }

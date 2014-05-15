@@ -129,11 +129,12 @@ public class AjaxDroppable extends AjaxComponent {
 	  StringBuffer onDropBuffer = new StringBuffer();
 	  onDropBuffer.append("ADP.droppedFunc(" + contextID + "," + elementID + "," + droppableElementID + "," + draggableKeyName + "," + updateContainerID + "," + actionUrl + "," + form + "," + onbeforedrop + "," + ondrop + ",");
 	  AjaxOptions.appendToBuffer(options, onDropBuffer, context());
-	  onDropBuffer.append(")");
+	  onDropBuffer.append(')');
 	  
 	  return onDropBuffer.toString();
   }
 
+  @Override
   protected void addRequiredWebResources(WOResponse res) {
     addScriptResourceInHead(res, "prototype.js");
 	addScriptResourceInHead(res, "effects.js");
@@ -141,6 +142,7 @@ public class AjaxDroppable extends AjaxComponent {
 	addScriptResourceInHead(res, "wonder.js");
   }
 
+  @Override
   public WOActionResults handleRequest(WORequest request, WOContext context) {
 	AjaxUpdateContainer.setUpdateContainerID(request, (String) valueForBinding("updateContainerID"));
     String droppedDraggableID = request.stringFormValueForKey(_draggableIDKeyName);

@@ -42,7 +42,7 @@ public class ERXValueUtilities {
      * @param component the component to evaluate the binding on
      * @param def the default value if the binding value is null
      * @return the boolean value of the binding
-     * @deprecated use {@link ERXComponentUtilities#booleanValueForBinding(WOComponent, String, boolean)}
+     * @deprecated use {@link er.extensions.components.ERXComponentUtilities#booleanValueForBinding(WOComponent, String, boolean)}
      */
     @Deprecated
     public static boolean booleanValueForBindingOnComponentWithDefault(String binding, WOComponent component, boolean def) {
@@ -827,11 +827,11 @@ public class ERXValueUtilities {
 	 */
 	public static String stringArrayToString(String[] sa) {
 		if((sa == null) || (sa.length <= 0)) return null;
-		StringBuffer sbuff = new StringBuffer();
+		StringBuilder sbuff = new StringBuilder();
 		int len = sa.length;
 		for(int loop = 0; loop < len; loop++){
 			sbuff.append(sa[loop]);
-			if((loop +1) < len) sbuff.append(",");
+			if((loop +1) < len) sbuff.append(',');
 		}
 		return (sbuff.length() > 0)? sbuff.toString(): null;
 	}

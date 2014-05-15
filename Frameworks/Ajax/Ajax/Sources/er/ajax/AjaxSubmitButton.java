@@ -208,7 +208,7 @@ public class AjaxSubmitButton extends AjaxDynamicElement {
 	else {
 		onClickBuffer.append(",null");
 	}
-	onClickBuffer.append(",");
+	onClickBuffer.append(',');
 	
     NSMutableDictionary options = createAjaxOptions(component);
     if (replaceID != null) {
@@ -226,10 +226,10 @@ public class AjaxSubmitButton extends AjaxDynamicElement {
 	AjaxUpdateLink.addEffect(options, (String) valueForBinding("afterEffect", component), afterEffectID, (String) valueForBinding("afterEffectDuration", component));
 	
     AjaxOptions.appendToBuffer(options, onClickBuffer, context);
-    onClickBuffer.append(")");
+    onClickBuffer.append(')');
     String onClick = (String) valueForBinding("onClick", component);
     if (onClick != null) {
-      onClickBuffer.append(";");
+      onClickBuffer.append(';');
       onClickBuffer.append(onClick);
     }
 	
@@ -238,7 +238,7 @@ public class AjaxSubmitButton extends AjaxDynamicElement {
 	}
 
     if (onClickBefore != null) {
-    	onClickBuffer.append("}");
+    	onClickBuffer.append('}');
     }
 
     
@@ -299,6 +299,7 @@ public class AjaxSubmitButton extends AjaxDynamicElement {
     super.appendToResponse(response, context);
   }
 
+  @Override
   protected void addRequiredWebResources(WOResponse res, WOContext context) {
     addScriptResourceInHead(context, res, "prototype.js");
 	addScriptResourceInHead(context, res, "effects.js");
@@ -323,6 +324,7 @@ public class AjaxSubmitButton extends AjaxDynamicElement {
     return result;
   }
 
+  @Override
   public WOActionResults handleRequest(WORequest request, WOContext context) {
 	   WOComponent component = context.component();
 	   WOActionResults result = (WOActionResults) valueForBinding("action", component);

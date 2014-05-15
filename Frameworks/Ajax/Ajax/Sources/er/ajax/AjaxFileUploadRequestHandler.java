@@ -49,6 +49,7 @@ public class AjaxFileUploadRequestHandler extends WORequestHandler {
 		_maxUploadSize = maxUploadSize;
 	}
 
+	@Override
 	public WOResponse handleRequest(WORequest request) {
 		WOApplication application = WOApplication.application();
 		application.awake();
@@ -59,7 +60,7 @@ public class AjaxFileUploadRequestHandler extends WORequestHandler {
 			String uploadIdentifier = null;
 			String uploadFileName = null;
 			InputStream uploadInputStream = null;
-			int streamLength = -1;
+			long streamLength = -1L;
 
 			try {
 				String sessionIdKey = WOApplication.application().sessionIdKey();
@@ -90,6 +91,9 @@ public class AjaxFileUploadRequestHandler extends WORequestHandler {
 					if (context._requestSessionID() != null) {
 						session = WOApplication.application().restoreSessionWithID(sessionId, context);
 					}
+					if (session == null) {
+						throw new Exception("No valid session!");
+					}
 					File tempFile = File.createTempFile("AjaxFileUpload", ".tmp", _tempFileFolder);
 					tempFile.deleteOnExit();
 					AjaxUploadProgress progress = new AjaxUploadProgress(uploadIdentifier, tempFile, uploadFileName, streamLength);
@@ -110,7 +114,7 @@ public class AjaxFileUploadRequestHandler extends WORequestHandler {
 					}
 					
 					try {
-						if (_maxUploadSize >= 0 && streamLength > _maxUploadSize) {
+						if (_maxUploadSize >= 0L && streamLength > _maxUploadSize) {
 							IOException e = new IOException("You attempted to upload a file larger than the maximum allowed size of " + new ERXUnitAwareDecimalFormat(ERXUnitAwareDecimalFormat.BYTE).format(_maxUploadSize) + ".");
 							progress.setFailure(e);
 							progress.dispose();

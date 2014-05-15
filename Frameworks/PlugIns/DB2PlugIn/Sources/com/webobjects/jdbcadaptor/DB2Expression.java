@@ -80,6 +80,7 @@ public class DB2Expression extends JDBCExpression {
      * Overridden to remove the rtrim usage. The original implementation
      * will remove every trailing space from character based column which 
      * should not be OK for DB2.
+     * @param entity entity for this expression
      */
     public DB2Expression(EOEntity entity) {
         super(entity);
@@ -94,7 +95,6 @@ public class DB2Expression extends JDBCExpression {
      * <code>com.webobjects.jdbcadaptor.DB2Expression.enableBooleanQuoting</code>
      * to enable or disable quoting (default) of boolean items.
      * 
-     * @return
      */
     private boolean enableBooleanQuoting() {
         if(_enableBooleanQuoting == null) {
@@ -110,7 +110,6 @@ public class DB2Expression extends JDBCExpression {
      * field names. Required if names which are case sensitive or reserved words
      * or have special characters.
      * 
-     * @return
      */
     private boolean enableIdentifierQuoting() {
         if(_enableIdentifierQuoting == null) {
@@ -329,7 +328,7 @@ public class DB2Expression extends JDBCExpression {
             sb.append(orderByClause);
         }
         if (lockClause != null && lockClause.length() > 0) {
-            sb.append(" ");
+            sb.append(' ');
             sb.append(lockClause);
         }
         if (_fetchLimit != 0) {
@@ -415,7 +414,7 @@ public class DB2Expression extends JDBCExpression {
                 }
               }
               else if (convertedObj instanceof String) {
-                String str = (String)obj;
+                String str = (String)convertedObj;
                 String valueType = eoattribute.valueType();
                 if (valueType == null || "i".equals(valueType)) {
                   return String.valueOf(Integer.parseInt(str));
@@ -481,7 +480,6 @@ public class DB2Expression extends JDBCExpression {
      * From what I understand, you will only need this if you disable bind variables.
      * @param value
      * @param eoattribute
-     * @return
      * @author ak
      */
     private String fixBigDecimal(BigDecimal value, EOAttribute eoattribute) {
@@ -512,7 +510,6 @@ public class DB2Expression extends JDBCExpression {
     /**
      * Helper to check for timestamp columns that have a "D" value type.
      * @param eoattribute
-     * @return
      */
     private boolean isDateAttribute(EOAttribute eoattribute) {
         return "D".equals(eoattribute.valueType());
@@ -521,7 +518,6 @@ public class DB2Expression extends JDBCExpression {
     /**
      * Helper to check for timestamp columns that have a "T" value type.
      * @param eoattribute
-     * @return
      */
     private boolean isTimestampAttribute(EOAttribute eoattribute) {
         return "T".equals(eoattribute.valueType());
@@ -530,7 +526,6 @@ public class DB2Expression extends JDBCExpression {
     /**
      * Helper to check for data columns that are not keys.
      * @param eoattribute
-     * @return
      */
     private boolean isDataAttribute(EOAttribute attribute) {
         return (attribute.className().equals("com.webobjects.foundation.NSData") ||
@@ -607,9 +602,9 @@ public class DB2Expression extends JDBCExpression {
 		EOModel sourceModel = entity.model();
 		EOModel destModel = relationship.destinationEntity().model();
 		if (sourceModel != destModel && !sourceModel.connectionDictionary().equals(destModel.connectionDictionary())) {
-			throw new IllegalArgumentException((new StringBuilder()).append("prepareConstraintStatementForRelationship unable to create a constraint for ").append(relationship.name()).append(" because the source and destination entities reside in different databases").toString());
+			throw new IllegalArgumentException(new StringBuilder().append("prepareConstraintStatementForRelationship unable to create a constraint for ").append(relationship.name()).append(" because the source and destination entities reside in different databases").toString());
 		} 
-		setStatement((new StringBuilder())
+		setStatement(new StringBuilder()
 				.append("ALTER TABLE ")
 				.append(sqlStringForSchemaObjectName(tableName))
 				.append(" ADD CONSTRAINT ")
@@ -620,7 +615,7 @@ public class DB2Expression extends JDBCExpression {
 				.append(sqlStringForSchemaObjectName(relationship.destinationEntity().externalName()))
 				.append(" (")
 				.append(destinationKeyList)
-				.append(")")
+				.append(')')
 				.toString());
 	}
     
@@ -808,7 +803,6 @@ public class DB2Expression extends JDBCExpression {
     /**
      * Checks the system property <code>com.webobjects.jdbcadaptor.DB2Expression.disableBindVariables</code> to enable
      * or disable bind variables in general.
-     * @return
      */
     private boolean disableBindVariables() {
     	if (_disableBindVariables == null) {
@@ -818,7 +812,7 @@ public class DB2Expression extends JDBCExpression {
     }
     
     /**
-     * Overridden to return the negated value of {@link #disableBindVariables()}.
+     * Overridden to return the negated value of <code>disableBindVariables</code>.
      */
     @Override
     public boolean useBindVariables() {
@@ -827,7 +821,7 @@ public class DB2Expression extends JDBCExpression {
     
     /**
      * Overridden to set the <code>disableBindVariables</code> value correctly.
-     * @param value
+     * @param value new value
      */
     @Override
     public void setUseBindVariables(boolean value) {
@@ -887,8 +881,6 @@ public class DB2Expression extends JDBCExpression {
      * Checks the system property
      * <code>com.webobjects.jdbcadaptor.DB2Expression.useLowercaseForCaseInsensitiveLike</code>
      * to use the "lower" function for caseInsensitive compares
-     * 
-     * @return
      */
     private boolean useLowercaseForCaseInsensitiveLike() {
 		if (_useLowercaseForCaseInsensitiveLike == null) {

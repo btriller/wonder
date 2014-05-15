@@ -13,6 +13,8 @@ import com.webobjects.directtoweb.D2W;
 import com.webobjects.directtoweb.EditPageInterface;
 import com.webobjects.directtoweb.NextPageDelegate;
 import com.webobjects.directtoweb.SelectPageInterface;
+import com.webobjects.eoaccess.EOEntity;
+import com.webobjects.eoaccess.EORelationship;
 import com.webobjects.eoaccess.EOUtilities;
 import com.webobjects.eocontrol.EOClassDescription;
 import com.webobjects.eocontrol.EODataSource;
@@ -36,6 +38,7 @@ import er.extensions.eof.ERXEOAccessUtilities;
 import er.extensions.eof.ERXEOControlUtilities;
 import er.extensions.eof.ERXGenericRecord;
 import er.extensions.foundation.ERXArrayUtilities;
+import er.extensions.foundation.ERXStringUtilities;
 import er.extensions.foundation.ERXValueUtilities;
 import er.modern.directtoweb.components.buttons.ERMDActionButton;
 import er.modern.directtoweb.interfaces.ERMEditRelationshipPageInterface;
@@ -125,7 +128,7 @@ public class ERMODEditRelationshipPage extends ERD2WPage implements ERMEditRelat
 	public WOComponent newObjectAction() {
 		EOEditingContext newEc = ERXEC.newEditingContext(masterObject().editingContext());
 		EOClassDescription relatedObjectClassDescription = masterObject().classDescriptionForDestinationKey(relationshipKey());
-		EOEnterpriseObject relatedObject = (EOEnterpriseObject)EOUtilities.createAndInsertInstance(newEc, relatedObjectClassDescription.entityName());
+		EOEnterpriseObject relatedObject = EOUtilities.createAndInsertInstance(newEc, relatedObjectClassDescription.entityName());
 		EOEnterpriseObject localObj = EOUtilities.localInstanceOfObject(relatedObject.editingContext(), masterObject());
 		if (localObj instanceof ERXGenericRecord) {
 			((ERXGenericRecord)localObj).setValidatedWhenNested(false);
@@ -265,7 +268,6 @@ public class ERMODEditRelationshipPage extends ERD2WPage implements ERMEditRelat
 	/**
 	 * Sets the current selected Object. Required by the SelectPageInterface
 	 */
-    @Override
 	public void setSelectedObject(EOEnterpriseObject eo) {
 		_selectedObject = eo;
 	}
@@ -278,7 +280,6 @@ public class ERMODEditRelationshipPage extends ERD2WPage implements ERMEditRelat
 	 * 
 	 * @return NSArray containing the master object (index 0) and relationship key (index 1).
 	 */
-    @Override
 	public NSArray<?> masterObjectAndRelationshipKey() {
 		return new NSArray<Object>(new Object[] { masterObject(), relationshipKey() });
 	}
@@ -286,13 +287,23 @@ public class ERMODEditRelationshipPage extends ERD2WPage implements ERMEditRelat
 	/**
 	 * Sets the master object and relationship key.
 	 * Takes an NSArray containing the master object (index 0) and relationship key (index 1).
-	 * Required by the {@link ERMEditRelationhsipPageInterface}
+	 * Required by the {@link ERMEditRelationshipPageInterface}
 	 * 
 	 * @param a an NSArray containing the master object (index 0) and relationship key (index 1).
 	 */
-    @Override
 	public void setMasterObjectAndRelationshipKey(NSArray<?> a) {
-		setMasterObjectAndRelationshipKey((EOEnterpriseObject)a.objectAtIndex(0), (String)a.objectAtIndex(1));
+        EOEnterpriseObject masterObject = (EOEnterpriseObject) a.objectAtIndex(0);
+        String relationshipKey = (String) a.objectAtIndex(1);
+        if (masterObject != null
+                && !ERXStringUtilities.stringIsNullOrEmpty(relationshipKey)) {
+            EOEntity masterEntity = EOUtilities.entityForObject(
+                    masterObject.editingContext(), masterObject);
+            EORelationship rel = masterEntity.relationshipNamed(relationshipKey);
+            // set currentRelationship key to allow unique ID creation
+            // (wonder-140)
+            d2wContext().takeValueForKey(rel, "currentRelationship");
+        }
+        setMasterObjectAndRelationshipKey(masterObject, relationshipKey);
 	}
 	
 	/**
@@ -301,7 +312,6 @@ public class ERMODEditRelationshipPage extends ERD2WPage implements ERMEditRelat
 	 * @param eo the master object, an EOEnterpriseObject
 	 * @param relationshipKey
 	 */
-    @Override
 	public void setMasterObjectAndRelationshipKey(EOEnterpriseObject eo, String relationshipKey) {
 		// only do this if the eo and relationshipKey have changed;
 		if (relationshipKey != null && eo != null) {
@@ -333,6 +343,28 @@ public class ERMODEditRelationshipPage extends ERD2WPage implements ERMEditRelat
 		}
 	}
 	
+    /*
+     * Overridden to set the parentRelationship key.
+     * 
+     * @see er.directtoweb.pages.ERD2WPage#settings()
+     */
+    @Override
+    public NSDictionary settings() {
+        String pc = d2wContext().dynamicPage();
+        if (pc != null) {
+            if (d2wContext().valueForKey("currentRelationship") != null) {
+                // set parentRelationship key to allow subcomponents to
+                // reference the correct ID (wonder-140)
+                return new NSDictionary(new Object[] { pc,
+                        d2wContext().valueForKey("currentRelationship") }, new Object[] {
+                        "parentPageConfiguration", "parentRelationship" });
+            } else {
+                return new NSDictionary(pc, "parentPageConfiguration");
+            }
+        }
+        return null;
+    }
+
 	// SORT ORDERING
 	
 	@SuppressWarnings("unchecked")
@@ -489,7 +521,7 @@ public class ERMODEditRelationshipPage extends ERD2WPage implements ERMEditRelat
 	}
 
 	public void setMasterObject(EOEnterpriseObject masterObject) {
-		this._masterObject = masterObject;
+		_masterObject = masterObject;
 	}
 	
 	/** Checks if the current list is empty. */

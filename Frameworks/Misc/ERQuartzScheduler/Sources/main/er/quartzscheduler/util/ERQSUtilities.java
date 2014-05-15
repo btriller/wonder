@@ -55,13 +55,13 @@ public class ERQSUtilities
 		public COJobInstanciationException(final String message, final ErrorType type) 
 		{
 			super(message);
-			this.errorType = type;
+			errorType = type;
 		}
 
 		public COJobInstanciationException(final String msg, final ErrorType type, final Throwable cause)
 		{
 			super(msg, cause);
-			this.errorType = type;
+			errorType = type;
 		}
 
 		public Throwable getUnderlyingException()
@@ -81,7 +81,7 @@ public class ERQSUtilities
 			if (cause == null || cause == this)
 				return super.toString();
 			else
-				return (new StringBuilder()).append(super.toString()).append(" [See nested exception: ").append(cause).append("]").toString();
+				return new StringBuilder().append(super.toString()).append(" [See nested exception: ").append(cause).append(']').toString();
 		}
 	}
 

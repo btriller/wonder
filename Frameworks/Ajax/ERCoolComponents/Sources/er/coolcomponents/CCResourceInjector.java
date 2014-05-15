@@ -8,7 +8,7 @@ import er.extensions.components.ERXStatelessComponent;
 
 /**
  * Stupid little component to allow you to inject a resource at any point on a page.
- * Useful for instance, if you need to guaruntee that your css will override the dynamically 
+ * Useful for instance, if you need to guarantee that your css will override the dynamically 
  * injected css from some other component.
  * 
  * @author davidleber
@@ -32,8 +32,9 @@ public class CCResourceInjector extends ERXStatelessComponent {
      * Assumes that if the isScript binding is null or false resource is a css file.
      *
      * @see er.extensions.components.ERXNonSynchronizingComponent#appendToResponse(com.webobjects.appserver.WOResponse, com.webobjects.appserver.WOContext)
-     * @see ERXResponseRewriter#addScriptResourceInHead(WOResponse, WOContext, String, String)
+     * @see er.extensions.appserver.ERXResponseRewriter#addScriptResourceInHead(WOResponse, WOContext, String, String)
      */
+    @Override
     public void appendToResponse(WOResponse response, WOContext context)
     {
     	String framework = stringValueForBinding("framework", "app");

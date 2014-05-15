@@ -40,7 +40,7 @@ public class Component extends _Component {
 	public int level(int safe) {
 		if (safe > 10)
 			return -1;
-		Component parent = (Component) parent();
+		Component parent = parent();
 		return parent == null ? 0 : 1 + parent.level(safe + 1);
 	}
 
@@ -51,7 +51,7 @@ public class Component extends _Component {
 			sb.append("***");
 		else
 			for (int i = 0; i < level(); i++)
-				sb.append("-");
+				sb.append('-');
 		sb.append(valueForKey("textDescription"));
 		return sb.toString();
 	}

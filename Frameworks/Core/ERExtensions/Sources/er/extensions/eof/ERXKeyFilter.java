@@ -160,7 +160,6 @@ public class ERXKeyFilter {
 	/**
 	 * Returns the key that is mapped to from the given input key.
 	 * 
-	 * @param <T> the type of the key (which doesn't change)
 	 * @param fromKey the key to map from
 	 * @return the key that maps to the given key
 	 */
@@ -808,7 +807,7 @@ public class ERXKeyFilter {
 	
 	@Override
 	public String toString() {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append("[ERXKeyFilter: base=" + _base);
 		if (_distinct) {
 			sb.append("; distinct");
@@ -822,7 +821,7 @@ public class ERXKeyFilter {
 		if (!_lockedRelationships.isEmpty()) {
 			sb.append("; excludesRelationships=" + _lockedRelationships);
 		}
-		sb.append("]");
+		sb.append(']');
 		return sb.toString();
 	}
 	

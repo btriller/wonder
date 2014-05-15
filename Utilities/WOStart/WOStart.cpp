@@ -14,10 +14,10 @@ string getNextRoot();
 string getNextLocal();
 
 #define APPNAME "WOStart"
-#define VERSION "1.0"
+#define VERSION "1.1"
 
 extern "C" {
-  int Java_Main(int argc, char ** argv);
+  int Java_Main(int argc, char ** argv, char *javaCommand);
 }
 
 // -- Application Environment --------------------------------------------
@@ -28,10 +28,10 @@ string g_currentDirectory;
 string g_appRoot;
 
 // Path to WebObjects installation
-string g_WORoot(getNextRoot());
+string g_WORoot;
 
 // Path to WebObjects Local directory
-string g_localRoot(getNextLocal());
+string g_localRoot;
 
 // Path to Home Root (what does this mean in this context?)
 string g_homeRoot("C:\\");
@@ -44,6 +44,8 @@ string g_jvmCommand("java");
 
 // JVM options
 string g_jvmOptions("");
+
+static bool debugoutput = false;
 
 // Report fatal error and exit
 //
@@ -116,6 +118,7 @@ string getNextRoot() {
 		{
 	  		DWORD  bufLen = _MAX_PATH;
 			char buf[_MAX_PATH];
+			buf[0] = 0;
 
 			RegQueryValueEx(hKey, "NEXT_ROOT", NULL, NULL,
 							(LPBYTE) buf, &bufLen);
@@ -124,10 +127,14 @@ string getNextRoot() {
 			normalisePath(root);
 		}
 		
-		if (root.length() > 0)
+		if (root.length() > 0) {
+			if (debugoutput) {
+				cout << "WORoot found in Registry: " << root.c_str() << endl;
+			}
 			return root;
+		}
 
-		cerr << "Warning: Unable to locate WOROOT/NET_ROOT using registry" << endl;
+//		cerr << "Warning: Unable to locate WOROOT/NEXT_ROOT using registry" << endl;
 
 
 		//
@@ -168,13 +175,18 @@ string getNextRoot() {
 			DWORD fattr = GetFileAttributes(root.c_str());
 			if (fattr != INVALID_FILE_ATTRIBUTES &&
 				fattr & FILE_ATTRIBUTE_DIRECTORY) {
+					if (debugoutput) {
+						cout << "WORoot found on drive: " << root.c_str() << endl;
+					}
+				
 					return root;
 			}
 
 		}
 
-		fatalError("Unable to locate WOROOT/NET_ROOT - is WebObjects installed?");
-
+//		fatalError("Unable to locate WOROOT/NEXT_ROOT - is WebObjects installed?");
+//		new default: empty string as original .cmd script does
+		root = "";
 	}
 
 	return root;
@@ -206,6 +218,7 @@ std::string stringToString(const std::string& s)
 }*/
 
 void setLaunchProperty(string key, string value) {
+	cout << " setLaunchProperty " << key << "=" << value << endl;
 	if (key.compare("JVM") == 0) {
 		g_jvmCommand = value;
 	} else if (key.compare("JVMOptions") == 0) {
@@ -234,6 +247,15 @@ void trim(string& str)
     if(pos != string::npos) str.erase(0, pos);
   }
   else str.erase(str.begin(), str.end());
+}
+
+void trimQuotes(string& str)
+{
+  if(str[0] == '"' && str[str.length()-1] == '"')
+  {
+    str.erase(0, 1);
+    str.erase(str.length()-1, str.length());
+  }
 }
 
 void addToClassPath(string& classpath, vector<string>list)
@@ -282,7 +304,8 @@ void initialiseClassPath(string& classpath)
 				
 				string value = wline.substr(i + 4);
 				trim(value);
-			   			   
+			   	trimQuotes(value);
+				
 				setLaunchProperty(key, value);
 			}
 
@@ -332,7 +355,7 @@ void getDirectoryProperties(vector<string>& jargs) {
 	jargs.push_back(args);
 }
 
-void StringSplit(string str, string delim, vector<string> results)
+void StringSplit(string str, string delim, vector<string>& results)
 {
 	int cutAt;
 	while( (cutAt = str.find_first_of(delim)) != str.npos )
@@ -354,6 +377,8 @@ void buildCommand(vector<string>& jargs, string& classpath, int argc, TCHAR* arg
 	getDirectoryProperties(jargs);
 
 	if(g_jvmOptions.length() > 0) {
+//		cout << "JVMOptions " << g_jvmOptions << endl;
+
 		vector<string> jvmOList;
 		StringSplit(g_jvmOptions, " ", jvmOList);
 		for(int i=0; i<jvmOList.size(); i++) {
@@ -371,7 +396,7 @@ void buildCommand(vector<string>& jargs, string& classpath, int argc, TCHAR* arg
 
 		// special handing jvm arguments
 		if (arg[0] == '-' && (			
-			   (arg[1] == 'X') ||                      // jvm "specia" arguments
+			   (arg[1] == 'X') ||                      // jvm "special" arguments
 			   (arg[1] == 'D' && strchr(arg + 2, '=')) // property definitions
 			))
 		{
@@ -418,12 +443,20 @@ void checkForUpdate(string& appPath) {
     } 
 }
 
-int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
+int wostart_main(int argc, TCHAR* argv[])
 {
 	try {
 		// tell the world about ourselves;
 		cout << APPNAME << " " << VERSION << endl;
 
+		if (getenv("_JAVA_LAUNCHER_DEBUG") != 0) {
+			debugoutput = true;
+		}
+
+		g_WORoot = getNextRoot();
+		g_localRoot = getNextLocal();
+
+		
 		// where are we being launched from?
 		g_currentDirectory = getAppDirectory();
 
@@ -443,20 +476,32 @@ int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 		int js = jargs.size();
 		char *new_argv[1000];
 
-//		cout << "Arguments" << endl;
+		//
+		// remove suffixes from command (remove .32.exe, .64.exe, .exe)
+		//
+		cout << "Command" << endl;
+		string command = argv[0];
+		size_t found = command.find('.');
+		if(found != string::npos) {
+			string substr = command.substr(0, found);
+			command.assign(substr);
+		}
 
-		new_argv[0] = argv[0];
+		new_argv[0] = (char *)command.c_str();
+		cout << " " << new_argv[0] << endl;
+		
+		cout << "Arguments" << endl;
 		int ii;
 		for(ii=0; ii < js; ii++)
 		{
-//			cout << " " << jargs[ii] << endl;
+			cout << " " << jargs[ii] << endl;
 			new_argv[ii+1] = (char *)jargs[ii].c_str();
 		}
 
 		// set the current directory
 		SetCurrentDirectory(g_currentDirectory.c_str());
 
-		Java_Main(js+1, new_argv);
+		Java_Main(js+1, new_argv, (char *)g_jvmCommand.c_str());
 	} 
 	catch (exception *e) 
 	{
@@ -467,3 +512,140 @@ int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 
 	return 0; // ok!
 }
+
+SERVICE_STATUS_HANDLE statusHandle;
+
+void SetStatus(DWORD state)
+{
+    SERVICE_STATUS status = {SERVICE_WIN32_OWN_PROCESS, state, SERVICE_ACCEPT_STOP, NO_ERROR, 0, 0, 0};
+
+    // Set allowed commands and wait time
+    if ((state == SERVICE_START_PENDING) || (state == SERVICE_STOP_PENDING))
+    {
+        status.dwControlsAccepted = 0;
+        status.dwWaitHint = 2000;
+    }
+
+    // Set status
+    SetServiceStatus(statusHandle, &status);
+}
+
+void WINAPI ControlHandler(DWORD control)
+{
+    if (control == SERVICE_CONTROL_STOP)
+    {
+        SetStatus(SERVICE_STOPPED);
+    }
+}
+
+PCHAR*
+CommandLineToArgvA(
+	PCHAR CmdLine,
+	int* _argc
+	)
+{
+	PCHAR* argv;
+	PCHAR  _argv;
+	ULONG   len;
+	ULONG   argc;
+	CHAR   a;
+	ULONG   i, j;
+
+	BOOLEAN  in_QM;
+	BOOLEAN  in_TEXT;
+	BOOLEAN  in_SPACE;
+
+	len = strlen(CmdLine);
+	i = ((len+2)/2)*sizeof(PVOID) + sizeof(PVOID);
+
+	argv = (PCHAR*)GlobalAlloc(GMEM_FIXED,
+		i + (len+2)*sizeof(CHAR));
+
+	_argv = (PCHAR)(((PUCHAR)argv)+i);
+
+	argc = 0;
+	argv[argc] = _argv;
+	in_QM = FALSE;
+	in_TEXT = FALSE;
+	in_SPACE = TRUE;
+	i = 0;
+	j = 0;
+
+	while( a = CmdLine[i] ) {
+		if(in_QM) {
+			if(a == '\"') {
+				in_QM = FALSE;
+			} else {
+				_argv[j] = a;
+				j++;
+			}
+		} else {
+			switch(a) {
+			case '\"':
+				in_QM = TRUE;
+				in_TEXT = TRUE;
+				if(in_SPACE) {
+					argv[argc] = _argv+j;
+					argc++;
+				}
+				in_SPACE = FALSE;
+				break;
+			case ' ':
+			case '\t':
+			case '\n':
+			case '\r':
+				if(in_TEXT) {
+					_argv[j] = '\0';
+					j++;
+				}
+				in_TEXT = FALSE;
+				in_SPACE = TRUE;
+				break;
+			default:
+				in_TEXT = TRUE;
+				if(in_SPACE) {
+					argv[argc] = _argv+j;
+					argc++;
+				}
+				_argv[j] = a;
+				j++;
+				in_SPACE = FALSE;
+				break;
+			}
+		}
+		i++;
+	}
+	_argv[j] = '\0';
+	argv[argc] = NULL;
+
+	(*_argc) = argc;
+	return argv;
+}
+	
+void WINAPI ServiceMain(DWORD argc, LPTSTR* argv)
+{
+    // Register handler
+    statusHandle = RegisterServiceCtrlHandler("", ControlHandler);
+    if (statusHandle)
+    {		
+		int s_argc;
+		LPTSTR *s_argv = CommandLineToArgvA(GetCommandLine(), &s_argc);
+
+		SetStatus(SERVICE_RUNNING);
+
+		wostart_main(s_argc, s_argv);
+
+        SetStatus(SERVICE_STOPPED);
+    }
+}
+
+int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
+{
+    // Service entry point
+    SERVICE_TABLE_ENTRY table[] = {{"", ServiceMain}, {NULL, NULL}};
+    BOOL serviceDidInit = StartServiceCtrlDispatcher(table);
+
+	if(!serviceDidInit)
+		wostart_main(argc, argv);
+}
+

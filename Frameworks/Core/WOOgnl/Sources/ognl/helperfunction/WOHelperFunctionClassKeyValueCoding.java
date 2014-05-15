@@ -5,13 +5,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
 import com.webobjects.foundation.NSKeyValueCoding;
-import com.webobjects.foundation.NSLog;
-import com.webobjects.foundation.NSMutableDictionary;
-import com.webobjects.foundation.NSMutableSet;
-import com.webobjects.foundation._NSReflectionUtilities;
-import com.webobjects.foundation._NSThreadsafeMutableDictionary;
-import com.webobjects.foundation._NSThreadsafeMutableSet;
-import com.webobjects.foundation._NSUtilities;
 import com.webobjects.foundation.NSKeyValueCoding.ValueAccessor;
 import com.webobjects.foundation.NSKeyValueCoding._BooleanFieldBinding;
 import com.webobjects.foundation.NSKeyValueCoding._BooleanMethodBinding;
@@ -21,6 +14,13 @@ import com.webobjects.foundation.NSKeyValueCoding._MethodBinding;
 import com.webobjects.foundation.NSKeyValueCoding._NumberFieldBinding;
 import com.webobjects.foundation.NSKeyValueCoding._NumberMethodBinding;
 import com.webobjects.foundation.NSKeyValueCoding._ReflectionKeyBindingCreation.Callback;
+import com.webobjects.foundation.NSLog;
+import com.webobjects.foundation.NSMutableDictionary;
+import com.webobjects.foundation.NSMutableSet;
+import com.webobjects.foundation._NSReflectionUtilities;
+import com.webobjects.foundation._NSThreadsafeMutableDictionary;
+import com.webobjects.foundation._NSThreadsafeMutableSet;
+import com.webobjects.foundation._NSUtilities;
 
 /**
  * WOHelperFunctionClassKeyValueCoding is basically just like NSKVC except that
@@ -217,7 +217,7 @@ public class WOHelperFunctionClassKeyValueCoding {
 							keyBinding = keyBindingCreationCallbackObject == null ? _methodKeyGetBinding(objectClass, key, underbarMethodName) : keyBindingCreationCallbackObject._methodKeyGetBinding(key, underbarMethodName);
 							if (keyBinding == null) {
 								underbarMethodNameBuffer.setLength(0);
-								underbarMethodNameBuffer.append("_");
+								underbarMethodNameBuffer.append('_');
 								underbarMethodNameBuffer.append(key);
 								underbarMethodName = underbarMethodNameBuffer.toString();
 								keyBinding = keyBindingCreationCallbackObject == null ? _methodKeyGetBinding(objectClass, key, underbarMethodName) : keyBindingCreationCallbackObject._methodKeyGetBinding(key, underbarMethodName);
@@ -260,7 +260,7 @@ public class WOHelperFunctionClassKeyValueCoding {
 
 						if (canAccessFieldsDirectly) {
 							StringBuilder underbarFieldNameBuffer = new StringBuilder(key.length() + 3);
-							underbarFieldNameBuffer.append("_");
+							underbarFieldNameBuffer.append('_');
 							underbarFieldNameBuffer.append(key);
 							String underbarFieldName = underbarFieldNameBuffer.toString();
 							keyBinding = keyBindingCreationCallbackObject == null ? _fieldKeyBinding(objectClass, key, underbarFieldName) : keyBindingCreationCallbackObject._fieldKeyBinding(key, underbarFieldName);

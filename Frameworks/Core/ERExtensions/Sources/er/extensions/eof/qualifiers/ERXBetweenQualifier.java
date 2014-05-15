@@ -231,6 +231,7 @@ public class ERXBetweenQualifier extends ERXKeyValueQualifier implements EOQuali
         * @param aSQLExpression to contruct the qualifier for.
         * @return BETWEEN sql string for the qualifier.
         */
+        @Override
         public String sqlStringForSQLExpression(EOQualifier eoqualifier, EOSQLExpression aSQLExpression) {
             if ( ( aSQLExpression != null ) && ( aSQLExpression.entity() != null ) )
             {
@@ -242,7 +243,7 @@ public class ERXBetweenQualifier extends ERXKeyValueQualifier implements EOQuali
 
                 if ( ( aKey != null ) && ( aMinimumValue != null ) && ( aMaximumValue != null ) )
                 {
-                    StringBuffer		aBuffer = new StringBuffer();
+                    StringBuilder		aBuffer = new StringBuilder();
                     EOKeyValueQualifier	aMinimumQualifier = new EOKeyValueQualifier( aKey, EOQualifier.QualifierOperatorEqual, aMinimumValue );
                     EOKeyValueQualifier	aMaximumQualifier = new EOKeyValueQualifier( aKey, EOQualifier.QualifierOperatorEqual, aMaximumValue );
 
@@ -267,10 +268,12 @@ public class ERXBetweenQualifier extends ERXKeyValueQualifier implements EOQuali
         }
         
         // ENHANCEME: This should support restrictive qualifiers on the root entity
+        @Override
         public EOQualifier schemaBasedQualifierWithRootEntity(EOQualifier eoqualifier, EOEntity eoentity) {
             return (EOQualifier)eoqualifier.clone();
         }
 
+        @Override
         public EOQualifier qualifierMigratedFromEntityRelationshipPath(EOQualifier eoqualifier,
                                                                        EOEntity eoentity,
                                                                        String s) {

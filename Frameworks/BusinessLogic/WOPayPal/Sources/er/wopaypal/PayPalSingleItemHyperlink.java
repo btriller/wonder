@@ -1,9 +1,3 @@
-//
-// PayPalSingleItemHyperlink.java: Class file for WO Component 'PayPalSingleItemHyperlink'
-// Project WOPayPal
-//
-// Created by travis on Sat Feb 09 2002
-//
 package er.wopaypal;
 
 import java.io.UnsupportedEncodingException;
@@ -42,12 +36,8 @@ public class PayPalSingleItemHyperlink extends PayPalSingleItemLinkBase {
      *
      * @return boolean
      */
+    @Override
     public boolean isStateless() { return true; }
-    /** Tells the component not to synchronize its binding values.  This means we have to do it manually.
-     *
-     * @return boolean
-     */
-    public boolean synchronizesVariablesWithBindings() { return false; }
 
     /** Assembles the url to send to PayPal for the single item purchase
      *
@@ -70,7 +60,7 @@ public class PayPalSingleItemHyperlink extends PayPalSingleItemLinkBase {
         DecimalFormat currencyFormatter = new DecimalFormat("##0.00", new DecimalFormatSymbols(Locale.US));
         DecimalFormat taxFormatter = new DecimalFormat("##0.000", new DecimalFormatSymbols(Locale.US));
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append("&business=" + urlEncode(payPalBusinessName) ); // required!!!
         if (userDefinableQuantity!=null) {
             sb.append("&undefined_quantity=" + (userDefinableQuantity.booleanValue() ? "1" : "0") );  
@@ -141,6 +131,7 @@ public class PayPalSingleItemHyperlink extends PayPalSingleItemLinkBase {
      *
      * @return NSArray
      */
+    @Override
     protected NSArray additionalBindingList() {
         NSMutableArray bindingArray = new NSMutableArray(); // super.bindingList();
         bindingArray.addObjectsFromArray(new NSArray(new Object[] {}));
@@ -167,6 +158,7 @@ public class PayPalSingleItemHyperlink extends PayPalSingleItemLinkBase {
 
     /** Resets the values pulled from the WOComponent to null.
      */
+    @Override
     public void reset() {
         Enumeration enumeration = baseBindingList().objectEnumerator();
 
@@ -181,6 +173,7 @@ public class PayPalSingleItemHyperlink extends PayPalSingleItemLinkBase {
             String key = (String) enumeration.nextElement();
             takeValueForKey(null, key);
         }
+        super.reset();
     }
 
     /** Overrides the default behavior and tells the Component to synchronize its ivar values with those bound to the WOComponent's bindings by calling pullBindings()
@@ -188,6 +181,7 @@ public class PayPalSingleItemHyperlink extends PayPalSingleItemLinkBase {
      * @param r WOResponse
      * @param c WOContext
      */
+    @Override
     public void appendToResponse(WOResponse r, WOContext c) {
         pullBindings();
         super.appendToResponse(r,c);
@@ -198,6 +192,7 @@ public class PayPalSingleItemHyperlink extends PayPalSingleItemLinkBase {
      * @param r WORequest
      * @param c WOContext
      */
+    @Override
     public void takeValuesFromRequest(WORequest r, WOContext c) {
         pullBindings();
         super.takeValuesFromRequest(r,c);
@@ -209,6 +204,7 @@ public class PayPalSingleItemHyperlink extends PayPalSingleItemLinkBase {
      * @param c WOContext
      * @return WOActionResults
      */
+    @Override
     public WOActionResults invokeAction(WORequest r, WOContext c) {
         pullBindings();
         return super.invokeAction(r,c);

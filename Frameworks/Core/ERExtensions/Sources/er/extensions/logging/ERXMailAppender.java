@@ -135,7 +135,7 @@ public class ERXMailAppender extends AppenderSkeleton {
      */
     public void setQualifier(String qualifier) {
         this.qualifier = qualifier;
-        this.realQualifier = null;
+        realQualifier = null;
     }
     
     /**
@@ -398,6 +398,7 @@ public class ERXMailAppender extends AppenderSkeleton {
      *
      * @param event current logging event
      */
+    @Override
     public void append(LoggingEvent event) {
         if (conditionsChecked || checkConditions()) {
             if(event.getLevel().equals(Level.ERROR) 
@@ -417,7 +418,7 @@ public class ERXMailAppender extends AppenderSkeleton {
         if (getTitle() != null) {
             composeTitle = getTitle();
         } else {
-            StringBuffer temp = new StringBuffer();
+            StringBuilder temp = new StringBuilder();
             if (titleIncludesPriorityLevelAsBoolean()) {
                 temp.append(event.getLevel().toString() + ": ");
             }

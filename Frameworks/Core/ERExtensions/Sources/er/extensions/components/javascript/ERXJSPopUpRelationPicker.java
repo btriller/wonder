@@ -11,6 +11,7 @@ package er.extensions.components.javascript;
 
 import java.util.Enumeration;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.webobjects.appserver.WOContext;
@@ -110,6 +111,7 @@ public class ERXJSPopUpRelationPicker extends ERXStatelessComponent {
     private static final int NOT_FOUND = -1;
     private static final NSArray UNSET = new NSArray();
     
+    @Override
     public void awake() {
         super.awake();
         updateVarNames();
@@ -117,7 +119,7 @@ public class ERXJSPopUpRelationPicker extends ERXStatelessComponent {
 
     protected void updateVarNames() {
         String elementID = context().elementID();
-        elementID = ERXStringUtilities.replaceStringByStringInString(".", "_", elementID);
+        elementID = StringUtils.replace(elementID,  ".", "_");
         pickerName = "picker_"+ elementID;
         parentSelectName = "parent_" + elementID;
         childSelectName = "child_" + elementID;
@@ -191,6 +193,7 @@ public class ERXJSPopUpRelationPicker extends ERXStatelessComponent {
     }
     
    
+    @Override
     public void takeValuesFromRequest(WORequest request, WOContext context) {
         NSArray parentFormValues = request.formValuesForKey(parentSelectName);
         NSArray childFormValues = request.formValuesForKey(childSelectName);
@@ -262,21 +265,18 @@ public class ERXJSPopUpRelationPicker extends ERXStatelessComponent {
 
     public String jsString() {
         // this method returns all the javascript we need to embed in the web page.
-        StringBuffer returnString;
-
-        returnString = new StringBuffer(2000);
-        returnString.append("\n");
+        StringBuilder returnString = new StringBuilder(2000);
+        returnString.append('\n');
 
         // This Javascript string builds an array of Entity objects on the browser end.
-        returnString.append("" + objectArrayCreationString() + "\n");
+        returnString.append(objectArrayCreationString());
+        returnString.append('\n');
         if (jsLog.isDebugEnabled()) jsLog.debug("JSPopUpRelationPicker jsString  returnString is " + returnString);
         return returnString.toString();
     }
 
     public String hiddenFormElementStrings() {
-        StringBuffer returnString;
-
-        returnString = new StringBuffer(500);
+        StringBuilder returnString  = new StringBuilder(500);
         returnString.append("\n<script language=\"JavaScript\">");
 		String childToSelect = "";
 		if (!multiple() && 
@@ -398,8 +398,10 @@ public class ERXJSPopUpRelationPicker extends ERXStatelessComponent {
         // here's an example of the string this method should return:
         //var parentschildren = new Array(new Entity("dogs","1",new Array(new Entity("poodle","4",null,false),new Entity("puli","5",null,true),new Entity("greyhound","5",null,false)),false), new Entity("fish","2",new Array(new Entity("trout","6",null,true),new Entity("mackerel","7",null,false),new Entity("bass","8",null,false)),true), new Entity("birds","3",new Array(new Entity("robin","9",null,false),new Entity("hummingbird","10",null,false),new Entity("crow","11",null,true)),false));
 
-        StringBuffer returnString = new StringBuffer(1000);
-        returnString.append("var "+objectsArrayName+" = [");
+        StringBuilder returnString = new StringBuilder(1000);
+        returnString.append("var ");
+        returnString.append(objectsArrayName);
+        returnString.append(" = [");
 
         int iCount = parentEntitiesList().count();
         for (int i=0;i<iCount;i++) {
@@ -430,7 +432,7 @@ public class ERXJSPopUpRelationPicker extends ERXStatelessComponent {
                     returnString.append(" false");
                 }
                 returnString.append(", null");
-                returnString.append(")");
+                returnString.append(')');
                 if (j != jCount - 1) {
                     // append a comma and a space
                     returnString.append(", ");
@@ -445,7 +447,7 @@ public class ERXJSPopUpRelationPicker extends ERXStatelessComponent {
             }
             returnString.append(", ");
             returnString.append(defaultChild!=null ? "\""+defaultChildIndex+"\"" : "-1");
-            returnString.append(")");
+            returnString.append(')');
 
 
             if (i != iCount - 1) {
@@ -459,7 +461,6 @@ public class ERXJSPopUpRelationPicker extends ERXStatelessComponent {
 
     /**
      * @param aParent
-     * @return
      */
     private boolean isSelectedParent(Object aParent) {
         return parentSelection().containsObject(aParent);
@@ -467,7 +468,6 @@ public class ERXJSPopUpRelationPicker extends ERXStatelessComponent {
 
     /**
      * @param aChild
-     * @return
      */
     private boolean isSelectedChild(Object aChild) {
         return childrenSelection().containsObject(aChild);
@@ -603,6 +603,7 @@ public class ERXJSPopUpRelationPicker extends ERXStatelessComponent {
         return _multiple.booleanValue();
     }
     
+    @Override
     public void reset() {
         super.reset();
         _childrenSelection = null;

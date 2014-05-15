@@ -349,6 +349,7 @@ public class ERXNavigationItem implements Serializable {
 		return _hasActivity;
 	}
 
+	@Override
 	public String toString() {
 		return "< " + name() + " >";
 	}
@@ -370,7 +371,7 @@ public class ERXNavigationItem implements Serializable {
 	 * @return {@link String} navigationPath
 	 */
 	public String navigationPath() {
-		StringBuffer result = new StringBuffer();
+		StringBuilder result = new StringBuilder();
 
 		// local variable to keep track of the navItem in the loop
 		ERXNavigationItem navItem = this;
