@@ -1,0 +1,155 @@
+--- a/Utilities/Adaptors/Adaptor/appcfg.c
++++ b/Utilities/Adaptors/Adaptor/appcfg.c
+@@ -648,7 +648,7 @@
+ /*
+  * Callback to update a particular setting in a WOApp.
+  */
+-static void updateAppKey(const char *key, const char *value, _WOApp *app)
++static int updateAppKey(const char *key, const char *value, _WOApp *app)
+ {
+    int changed = 0;
+    if (strcmp(key, WOSCHEDULER) == 0)
+@@ -674,12 +674,14 @@
+       /* The setting was not recognized. Log and ignore it. */
+       WOLog(WO_INFO, "Unknown attribute in application config: \"%s\", value = \"%s\"", key, value);
+    }
++   
++   return changed;
+ }
+ 
+ /*
+  * Callback to update a particular setting in a WOApp.
+  */
+-static void updateInstanceKey(const char *key, const char *value, _WOInstance *instance)
++static int updateInstanceKey(const char *key, const char *value, _WOInstance *instance)
+ {
+    int changed = 0;
+ 
+@@ -719,6 +721,8 @@
+       /* The setting was not recognized. Log and ignore it. */
+       WOLog(WO_INFO, "Unknown attribute in instance config: \"%s\", value = \"%s\"", key, value);
+    }
++   
++   return changed;
+ }
+ 
+ /*
+--- a/Utilities/Adaptors/Adaptor/shmem.c
++++ b/Utilities/Adaptors/Adaptor/shmem.c
+@@ -1,6 +1,6 @@
+ /*
+ 
+-Copyright © 2000-2007 Apple, Inc. All Rights Reserved.
++Copyright ? 2000-2007 Apple, Inc. All Rights Reserved.
+ 
+ The contents of this file constitute Original Code as defined in and are
+ subject to the Apple Public Source License Version 1.1 (the 'License').
+@@ -28,6 +28,7 @@
+ 
+ #include <errno.h>
+ #include <sys/types.h>
++#include <stdio.h>
+ 
+ #ifndef DISABLE_SHARED_MEMORY
+ 
+@@ -66,7 +67,7 @@
+ /*
+  * The address in memory at which the file has been mapped.
+  */
+-static void * WOShmem_base_address = -1;
++static void * WOShmem_base_address = (void *)-1;
+ 
+ /*
+  * The total size of the mapped memory.
+@@ -75,7 +76,7 @@
+ 
+ static WA_recursiveLock WOShmem_mutex;
+ 
+-#define offset_to_addr(offset) ((void *)(WOShmem_base_address + (void *)offset))
++#define offset_to_addr(offset) ((void *)(WOShmem_base_address + offset))
+ #define addr_to_offset(addr) ((void *)addr - WOShmem_base_address)
+ 
+ #ifndef MAP_FAILED
+@@ -619,4 +620,27 @@
+    }
+ }
+ 
++int shmem_do_tests()
++{
++   int res = 0;
++
++   if(res == 0 && sizeof(void *) == 8)
++   {
++      long long testaddr  = 0x111122227fffffff;
++      long long testaddr2 = 0x1111222280000003;
++      ShmemArray *mem = sha_alloc("Test", (void *)testaddr, 4, 2);
++
++      printf("Testing against 64 bit address handling (long long=%d, long=%d, int=%d, void *=%d)\n", (int)sizeof(long long), (int)sizeof(long), (int)sizeof(int), (int)sizeof(void *));
++
++      if(mem->elements[1].element != (void *)testaddr2)
++      {
++         printf("Test error in shmem, Test 1 ");
++         res = 1;
++      }
++   }
++
++   if(res == 0)
++      printf(" => OK");
++   return 0;
++}
+ 
+--- a/Utilities/Adaptors/Adaptor/shmem.h
++++ b/Utilities/Adaptors/Adaptor/shmem.h
+@@ -229,6 +229,14 @@
+  */
+ void sha_clearLocalData(ShmemArray *array, unsigned int elementNumber);
+ 
++/*
++  perform automated tests
++  returns 0 on success
++  returns 1 on failure
++  prints to stdout
++*/
++int shmem_do_tests();
++
+ #endif /* SHMEM_H */
+ 
+  
+--- a/Utilities/Adaptors/CGI/WebObjects.c
++++ b/Utilities/Adaptors/CGI/WebObjects.c
+@@ -39,6 +39,7 @@
+ #include "transaction.h"
+ #include "listing.h"
+ #include "wastring.h"
++#include "shmem.h"
+ 
+ #include <stdio.h>
+ #include <stdlib.h>
+@@ -204,7 +205,15 @@
+    return n == dataSize ? n : -1;
+ }
+ 
++int do_tests()
++{
++  int res = 0;
++  
++  if(res == 0)
++    res = shmem_do_tests();
+ 
++  return res;
++}
+ 
+ #ifdef  PROFILE
+ int doit(int argc, char *argv[], char **envp);  /* forward */
+@@ -238,6 +247,11 @@
+       _setmode(_fileno(stdin), _O_BINARY);
+ #endif
+ 
++      if(argc == 2 && strcmp(argv[1], "test") == 0)
++      {
++	exit(do_tests());
++      }
++
+       script_name = getenv(CGI_SCRIPT_NAME);
+       path_info = getenv(CGI_PATH_INFO);
+ 
