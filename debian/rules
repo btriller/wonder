@@ -8,11 +8,11 @@
 export DH_OPTIONS
 
 ADAPTOR_SRC_DIR := Utilities/Adaptors
-ADAPTORS := Apache2.2
-APXS := $(shell which apxs2)
+ADAPTORS := Apache2.4
+APXS := $(shell which apxs)
 OS := Debian
 ENABLE_SSL_SUPPORT=
-LIBEXECDIR := $(shell apxs2 -q LIBEXECDIR)
+LIBEXECDIR := $(shell $(APXS) -q LIBEXECDIR)
 NEXT_ROOT := /usr/share/webobjects
 ROOTS := debian/roots
 DESTDIR := debian/tmp

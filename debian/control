@@ -3,12 +3,12 @@ Maintainer: Bastian Triller <bastian.triller@gmail.com>
 Section: java
 Priority: optional
 Standards-Version: 3.9.0
-Build-Depends: debhelper (>= 7.3.8), apache2-prefork-dev, ant, webobjects, default-jdk
+Build-Depends: debhelper (>= 7.3.8), apache2-dev, ant, webobjects, default-jdk
 
 Package: libapache2-mod-wo
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, apache2-mpm-prefork
-Description: WebObjects adaptor module for Apache2.2
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: WebObjects adaptor module for Apache 2
  http://wonder.sf.net/
  http://www.apple.com/ca/webobjects/
 

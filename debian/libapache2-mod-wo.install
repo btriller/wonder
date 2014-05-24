@@ -1,3 +1,3 @@
-Utilities/Adaptors/Apache2.2/mod_WebObjects.so usr/lib/apache2/modules/
+Utilities/Adaptors/Apache2.4/mod_WebObjects.so usr/lib/apache2/modules/
 debian/webobjects.conf etc/apache2/mods-available/
 debian/webobjects.load etc/apache2/mods-available/
